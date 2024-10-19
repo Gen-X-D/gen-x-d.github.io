@@ -1,0 +1,451 @@
+
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>GenXD</title>
+
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta property="og:image" content="https://gen-x-d.github.io/material/figures/icon.jpg">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1711">
+    <meta property="og:image:height" content="576">
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://gen-x-d.github.io/"/>
+    <meta property="og:title" content="GenXD: Generating Any 3D and 4D Scenes" />
+    <meta property="og:description" content="Recent developments in 2D visual generation have been remarkably successful. However, 3D and 4D generation remain challenging in real-world applications due to the lack of large-scale 4D data and effective model design. In this paper, we propose to jointly investigate general 3D and 4D generation by leveraging camera and object movements commonly observed in daily life. Due to the lack of real-world 4D data in the community, we first propose a data curation pipeline to obtain camera poses and object motion strength from videos. Based on this pipeline, we introduce a large-scale real-world 4D scene dataset: CamVid-30K. By leveraging all the 3D and 4D data, we develop our framework, GenXD, which allows us to produce any 3D or 4D scene. We propose multiview-temporal modules, which disentangle camera and object movements, to seamlessly learn from both 3D and 4D data. Additionally, GenXD employs masked latent conditions to support a variety of conditioning views. GenXD can generate videos that follow the camera trajectory as well as consistent 3D views that can be lifted into 3D representations. We perform extensive evaluations across various real-world and synthetic datasets, demonstrating GenXD's effectiveness and versatility compared to previous methods in 3D and 4D generation."/>
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="GenXD: Generating Any 3D and 4D Scenes" />
+    <meta name="twitter:description" content="Recent developments in 2D visual generation have been remarkably successful. However, 3D and 4D generation remain challenging in real-world applications due to the lack of large-scale 4D data and effective model design. In this paper, we propose to jointly investigate general 3D and 4D generation by leveraging camera and object movements commonly observed in daily life. Due to the lack of real-world 4D data in the community, we first propose a data curation pipeline to obtain camera poses and object motion strength from videos. Based on this pipeline, we introduce a large-scale real-world 4D scene dataset: CamVid-30K. By leveraging all the 3D and 4D data, we develop our framework, GenXD, which allows us to produce any 3D or 4D scene. We propose multiview-temporal modules, which disentangle camera and object movements, to seamlessly learn from both 3D and 4D data. Additionally, GenXD employs masked latent conditions to support a variety of conditioning views. GenXD can generate videos that follow the camera trajectory as well as consistent 3D views that can be lifted into 3D representations. We perform extensive evaluations across various real-world and synthetic datasets, demonstrating GenXD's effectiveness and versatility compared to previous methods in 3D and 4D generation."/>
+    <meta name="twitter:image" content="material/icon.jpg" />
+
+
+<!-- <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤔</text></svg>"> -->
+    <link rel="icon" href="https://gen-x-d.github.io/material/figures/icon.jpg"> 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.8.0/codemirror.min.css">
+    <link rel="stylesheet" href="css/app.css">
+	<link rel="stylesheet" href="css/fontawesome.all.min.css">
+	<link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+
+	<!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8ZERS5BVPS"></script>
+  <script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+
+	gtag('config', 'G-8ZERS5BVPS');
+  </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.8.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.3/clipboard.min.js"></script>
+    <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+	<script defer src="js/fontawesome.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+    <script src="js/app.js"></script>
+    <script src="js/synced_video_selector.js"></script>
+    <!-- <script src="js/video_comparison.js"></script> -->
+
+</head>
+
+<body style="padding: 1%; width: 100%">
+    <div class="container-lg text-center" style="max-width: 1500px; margin: auto;" id="main">
+    <!-- <div class="container" id="main"> -->
+        <div class="row">
+            <h2 class="col-md-12 text-center">
+                <b>GenXD</b>: Generating Any 3D and 4D Scenes</br> 
+            </h2>
+        </div>
+        <div class="row text-center">
+<div class="col-md-3">
+    </div>
+            <div class="col-md-6 text-center">
+                <ul class="list-inline">
+                    <li>
+                        <a href="https://yuyangzhao.com/">
+                            Yuyang Zhao
+                        </a><sup>1</sup>
+                    </li>
+                    <li>
+                        <a href="https://www.microsoft.com/en-us/research/people/chunglin/">
+                            Chung-Ching Lin
+                        </a><sup>2</sup>
+                    </li>
+                    <li>
+                        <a href="https://sites.google.com/site/kevinlin311tw/me">
+                            Kevin Lin
+                        </a><sup>2</sup>
+                    </li>
+                    <li>
+                        <a href="https://jokeryan.github.io/about/">
+                            Zhiwen Yan
+                        </a><sup>1</sup>
+                    </li>
+                    <li>
+                        <a href="https://www.microsoft.com/en-us/research/people/linjli/">
+                            Linjie Li
+                        </a><sup>2</sup>
+                    </li>
+                    <wbr>
+                    <li>
+                        <a href="https://zyang-ur.github.io/">
+                            Zhengyuan Yang
+                        </a><sup>2</sup>
+                    </li>
+                    <li>
+                        <a href="https://jianfengwang.me/">
+                            Jianfeng Wang
+                        </a><sup>2</sup>
+                    </li>
+                    <li>
+                        <a href="https://www.comp.nus.edu.sg/~leegh/">
+                            Gim Hee Lee
+                        </a><sup>1</sup>
+                    </li>
+                    <!-- <wbr> -->
+                    <li>
+                        <a href="https://www.microsoft.com/en-us/research/people/lijuanw/">
+                            Lijuan Wang
+                        </a><sup>2</sup>
+                    </li>
+
+                </ul>
+            </div>
+<div class="col-md-3">
+    </div>
+            <div class="col-md-12 text-center">
+                <sup>1</sup>National University of Singapore, &nbsp <sup>2</sup>Microsoft
+            </div>
+            <!-- <div class="col-md-12 text-center">
+                CVPR 2024
+            </div> -->
+    </div>
+
+        <br>
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+              <!-- Model Link -->
+              <span class="link-block">
+                <a href="" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <img src="materials/figures/hf.png" alt="Model" style="width: 20px; height: 20px;">
+                    </span>
+                    <span>Model</span>
+                  </a>
+              </span>
+
+              <!-- Data Link -->
+              <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="far fa-images"></i>
+                  </span>
+                  <span>Data</span>
+                  </a>
+              </span>
+            </div>
+            
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <video id="teaser-video-ours" width="100%" autoplay loop muted controls>
+                  <source src="materials/teaser.mp4" type="video/mp4" />
+                </video>
+			</div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                    Abstract
+                </h3>
+                <p class="text-justify">
+                    Recent developments in 2D visual generation have been remarkably successful. However, 3D and 4D generation remain challenging in real-world applications due to the lack of large-scale 4D data and effective model design. In this paper, we propose to jointly investigate general 3D and 4D generation by leveraging camera and object movements commonly observed in daily life. Due to the lack of real-world 4D data in the community, we first propose a data curation pipeline to obtain camera poses and object motion strength from videos. Based on this pipeline, we introduce a large-scale real-world 4D scene dataset: CamVid-30K. By leveraging all the 3D and 4D data, we develop our framework, GenXD, which allows us to produce any 3D or 4D scene. We propose multiview-temporal modules, which disentangle camera and object movements, to seamlessly learn from both 3D and 4D data. Additionally, GenXD employs masked latent conditions to support a variety of conditioning views. GenXD can generate videos that follow the camera trajectory as well as consistent 3D views that can be lifted into 3D representations. We perform extensive evaluations across various real-world and synthetic datasets, demonstrating GenXD's effectiveness and versatility compared to previous methods in 3D and 4D generation.
+                </p>
+            </div>
+        </div>
+        <br>
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                    GenXD: A Versatile Model for Multiple Settings
+                </h3><br>
+
+                <div class="text-center ">
+                    <ul class="nav nav-pills center-pills">
+                        <li class="method-pill active" data-value="single-3d"
+                            onclick="selectMethod(this)"><a>Single View 3D Generation</a></li>
+                        <li class="method-pill" data-value="multi-3d"
+                            onclick="selectMethod(this)"><a>Multi-View 3D Generation</a></li>
+                        <li class="method-pill" data-value="single-4d"
+                            onclick="selectMethod(this)"><a>Single View 4D Generation</a></li>
+                        <li class="method-pill" data-value="multi-4d"
+                            onclick="selectMethod(this)"><a>Multi-View 4D Generation</a></li>
+                    </ul>
+                </div>
+
+                <!-- <script>
+                    activeMethodPill = document.querySelector('.method-pill.active-pill');
+                    activeScenePill = document.querySelector('.scene-pill.active-pill');
+                    activeModePill = document.querySelector('.mode-pill.active-pill');
+                </script> -->
+
+                <script>
+                    activeMethodPill = document.querySelector('.method-pill.active-pill');
+                    // activeScenePill = document.querySelector('.scene-group:visible .scene-pill.active');
+                    // Select all .scene-pill elements within a .scene-group, then filter for visible and active elements
+                    var scenePills = document.querySelectorAll('.scene-group .scene-pill.active');
+                    activeModePill = document.querySelector('.mode-pill.active-pill');
+                </script>
+                
+                <div class="text-center">
+                    <div class="video-container">
+                        <video class="video" style="height: 280px; max-width: 100%;" id="compVideo0" loop playsinline autoplay muted>
+                            <source src="materials/single-3d/robot_rgb.mp4" />
+                        </video>
+                        <!-- <video preload="none" class="video" id="compVideo0" loop playsinline autoplay muted hidden src="materials/single-3d/robot_rgb.mp4" onplay="resizeAndPlay2(this)" style="height: 280px; max-width: 100%;"></video>
+                        <canvas height="280" class="videoMerge" id="compVideo0Merge"></canvas> -->
+            
+                        <video class="video" style="height: 280px; max-width: 100%;" id="compVideo1" loop playsinline autoplay muted hidden>
+                            <source src="materials/single-3d/robot_depth.mp4" />
+                        </video>
+                    </div>
+
+
+                    <br>
+                    <p class="text-justify" style="text-align: center;">
+                        Scene trained on <span id="compVideoValue">1</span> views. Try selecting different settings and scenes!
+                    </p>
+                    <script>
+                        video0 = document.getElementById("compVideo0");
+                        video1 = document.getElementById("compVideo1");
+                        video0.addEventListener('loadedmetadata', function() {
+                            if (activeVidID == 0 && select){
+                                video0.play();
+                                // print video size
+                                console.log(video0.videoWidth, video0.videoHeight);
+                                video0.hidden = false;
+                                video1.hidden = true;
+                            }
+                        });
+                        video1.addEventListener('loadedmetadata', function() {
+                            if (activeVidID == 1 && select){
+                                video1.play();
+                                // print video size
+                                console.log(video1.videoWidth, video1.videoHeight);
+                                video0.hidden = true;
+                                video1.hidden = false;
+                            }
+                        });
+                    </script>
+
+                    <!-- Scene Pills for Single View 3D -->
+                    <div class="scene-group" id="scenes-single-3d" style="display: block;">
+                        <div class="pill-row scene-pills">
+                            <span class="pill scene-pill" data-value="robot" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/single-3d/robot.png" alt="robot" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="lighthouse" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/single-3d/lighthouse.png" alt="lighthouse" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="rustic_wooden" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/single-3d/rustic_wooden.png" alt="rustic_wooden" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="astronaut" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/single-3d/astronaut.png" alt="astronaut" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="bear" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/single-3d/bear.png" alt="bear" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="pile" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/single-3d/pile.png" alt="pile" width="64">
+                            </span>
+                        </div>
+                    </div>
+
+
+                    <!-- Scene Pills for Multi-View 3D -->
+                    <div class="scene-group" id="scenes-multi-3d" style="display: none;">
+                        <div class="pill-row scene-pills">
+                            <span class="pill scene-pill" data-value="fortress" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/multi-3d/fortress.JPG" alt="fortress" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="trex" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/multi-3d/trex.jpg" alt="trex" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="000c3ab189999a83" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/multi-3d/000c3ab189999a83.png" alt="000c3ab189999a83" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="000db54a47bd43fe" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/multi-3d/000db54a47bd43fe.png" alt="000db54a47bd43fe" width="64">
+                            </span>
+                        </div>
+                    </div>
+
+
+                    <!-- Scene Pills for Single-View 4D -->
+                    <div class="scene-group" id="scenes-single-4d" style="display: none;">
+                        <div class="pill-row scene-pills">
+                            <span class="pill scene-pill" data-value="0a7369afec3e461d8f668498e36b7707" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/single-4d/0a7369afec3e461d8f668498e36b7707.png" alt="0a7369afec3e461d8f668498e36b7707" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="ef4da7b9c79440188fbde8aee1ba0a29" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/single-4d/ef4da7b9c79440188fbde8aee1ba0a29.png" alt="ef4da7b9c79440188fbde8aee1ba0a29" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="yoxtj" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/single-4d/yoxtj.png" alt="yoxtj" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="cityscapes" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/single-4d/cityscapes.png" alt="cityscapes" width="64">
+                            </span>
+                        </div>
+                    </div>
+
+
+                    <!-- Scene Pills for Multi-View 4D -->
+                    <div class="scene-group" id="scenes-multi-4d" style="display: none;">
+                        <div class="pill-row scene-pills">
+                            <span class="pill scene-pill" data-value="cat-girl" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/multi-4d/cat-girl.png" alt="cat-girl" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="flamingo" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/multi-4d/flamingo.png" alt="flamingo" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="camel" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/multi-4d/camel.jpg" alt="camel" width="64">
+                            </span>
+                            <span class="pill scene-pill" data-value="lady-running" onclick="selectCompVideo(this, activeMethodPill, 1)">
+                                <img class="thumbnail-img" src="materials/multi-4d/lady-running.jpg" alt="lady-running" width="64">
+                            </span>
+                        </div>
+                    </div>
+
+                    <script>
+                        activeMethodPill = document.querySelector('.method-pill.active-pill');
+                        // activeScenePill = document.querySelector('.scene-group:visible .scene-pill.active');
+                        // Select all .scene-pill elements within a .scene-group, then filter for visible and active elements
+                        var scenePills = document.querySelectorAll('.scene-group .scene-pill.active');
+                        activeScenePill = Array.from(scenePills).find(function(pill) {
+                            return pill.offsetParent !== null;  // Check if the element is visible
+                        });
+                        activeModePill = document.querySelector('.mode-pill.active-pill');
+                    </script>
+                    <!-- activeScenePill = document.querySelector('.scene-pill.active-pill'); -->
+                </div>
+            </div>
+        </div>
+
+
+        <br>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+				  <!-- <b> <font color="#118ab2">Recon</font><font color="#ef486e">Fusion</font></b> = <font color="#118ab2">3D Reconstruction</font>  + <font color="#ef486e">Diffusion Prior</font> -->
+                    The overall framework of GenXD</h3><br>
+                <image src="materials/figures/diffusion-model.png" width=80% style="display: block; margin: auto;"> </image>
+                <p class="text-justify">
+                    GenXD leverages mask latent conditioned diffusion model to generate 3D and 4D samples with both camera (colorful map) and image (binary map) conditions. In addition, multiview-temporal modules together with alpha-fusing are proposed to effectively disentangle and fuse multiview and temporal information.
+                </p>
+            </div>
+        </div><br><br>
+	
+        <div class="row">
+		<div class="col-md-8 col-md-offset-2">
+		<h3> CamVid-30K: A Large-scale 4D Scene Dataset</h3><br>
+                <video id="camvid-video" width="100%" autoplay loop muted controls>
+                  <source src="materials/video-camvid.mp4" type="video/mp4" />
+                </video>
+                <br>
+                    <p class="text-justify" style="text-align: center;">
+                        CamVid-30K contains 30K videos with 4D annotations, including camera poses and object motions. The dataset can be used for various dynamic 3D tasks.
+                    </p>
+            </div>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+				  CamVid-30K: data duration pipeline
+                </h3><br>
+                <image src="materials/figures/motion.png" width=80% style="display: block; margin: auto;"> </image>
+                <p class="text-justify">
+                    The pipeline for CamVid-30K data curation, including (a) camera pose estimation and (b) object motion estimation. We first leverage mask-based SfM (masks are overlayed to images in (a) for visualization) to estimate camera pose and reconstruct 3D point clouds of static parts. Then relative depth is aligned with the sparse depth and project the tracking keypoints to consecutive frame for object motion estimation.
+                </p>
+    
+            </div>
+        </div>
+
+        <br><br>
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                    Citation
+                </h3>
+                <div class="form-group col-md-10 col-md-offset-1">
+				  <p class="text-justify">
+                    <textarea id="bibtex" class="form-control" readonly>
+@article{zhao2024genxd,
+    title={GenXD: Generating Any 3D and 4D Scenes},
+    author={Zhao, Yuyang and Lin, Chung-Ching and Lin, Kevin and 
+			Yan, Zhiwen and Li, Linjie and Yang, Zhengyuan and 
+			Wang, Jianfeng and Lee, Gim Hee and Wang, Lijuan},
+    journal={arXiv},
+    year={2024}
+	}</textarea></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                    Acknowledgements
+                </h3>
+                <p class="text-justify">
+                We would like to thank Dejia Xu and Yuyang Yin for the valuable discussions regarding the 4D data.
+                <br><br>
+                The website template was borrowed from <a href="http://mgharbi.com/">Michaël Gharbi</a>, <a href="https://dorverbin.github.io/refnerf">Ref-NeRF</a>, <a href="https://reconfusion.github.io/">ReconFusion</a> and <a href="https://cat3d.github.io/">CAT3D</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
